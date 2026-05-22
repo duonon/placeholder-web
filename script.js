@@ -1,11 +1,17 @@
 const canvas = document.querySelector("#network");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d", {
+  alpha: true,
+  desynchronized: true,
+});
 const cursor = document.createElement("div");
 
 let width = 0;
 let height = 0;
 let animationFrame = 0;
 let startTime = performance.now();
+let lastDraw = 0;
+let waveStep = 18;
+let renderScale = 1;
 
 const pointer = {
   x: 0.5,
@@ -15,20 +21,29 @@ const pointerTarget = {
   x: 0.5,
   y: 0.5,
 };
+const cursorTarget = {
+  x: -100,
+  y: -100,
+  visible: false,
+};
 
 cursor.className = "cursor-square";
 cursor.setAttribute("aria-hidden", "true");
 document.body.append(cursor);
 
 function resize() {
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const deviceRatio = window.devicePixelRatio || 1;
+  const isNarrowPortrait = window.innerWidth <= 520 && window.innerHeight > window.innerWidth;
+
+  renderScale = isNarrowPortrait ? Math.min(deviceRatio, 1.7) : Math.min(deviceRatio, 1.15);
   width = window.innerWidth;
   height = window.innerHeight;
-  canvas.width = Math.floor(width * ratio);
-  canvas.height = Math.floor(height * ratio);
+  waveStep = isNarrowPortrait ? 7 : 22;
+  canvas.width = Math.floor(width * renderScale);
+  canvas.height = Math.floor(height * renderScale);
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.setTransform(renderScale, 0, 0, renderScale, 0, 0);
 }
 
 function drawWave(time, options) {
@@ -44,7 +59,7 @@ function drawWave(time, options) {
 
   ctx.beginPath();
 
-  for (let x = -80; x <= width + 80; x += 16) {
+  for (let x = -80; x <= width + 80; x += waveStep) {
     const progress = x / width;
     const drift = Math.sin(time * speed + progress * frequency + phase);
     const pulse = Math.sin(time * speed * 0.63 + progress * frequency * 1.7);
@@ -64,10 +79,7 @@ function drawWave(time, options) {
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
   ctx.lineCap = "round";
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 28;
   ctx.stroke();
-  ctx.shadowBlur = 0;
 }
 
 function drawPrism(time) {
@@ -75,16 +87,13 @@ function drawPrism(time) {
   const centerY = height * (0.5 + (pointer.y - 0.5) * 0.08);
   const maxRadius = Math.max(width, height) * 0.62;
 
-  for (let i = 0; i < 9; i += 1) {
+  for (let i = 0; i < 5; i += 1) {
     const radius = maxRadius * (0.2 + i * 0.095 + Math.sin(time * 0.7 + i) * 0.012);
-    const alpha = 0.08 - i * 0.006;
-    const gradient = ctx.createRadialGradient(centerX, centerY, radius * 0.15, centerX, centerY, radius);
+    const alpha = 0.075 - i * 0.009;
 
-    gradient.addColorStop(0, `rgba(87, 216, 255, ${alpha})`);
-    gradient.addColorStop(0.54, `rgba(255, 79, 135, ${alpha * 0.72})`);
-    gradient.addColorStop(1, "rgba(5, 6, 9, 0)");
-
-    ctx.strokeStyle = gradient;
+    ctx.strokeStyle = i % 2 === 0
+      ? `rgba(87, 216, 255, ${alpha})`
+      : `rgba(255, 79, 135, ${alpha * 0.72})`;
     ctx.lineWidth = 1.1;
     ctx.beginPath();
     ctx.ellipse(
@@ -101,10 +110,18 @@ function drawPrism(time) {
 }
 
 function draw(timestamp) {
+  if (timestamp - lastDraw < 1000 / 36) {
+    animationFrame = requestAnimationFrame(draw);
+    return;
+  }
+
+  lastDraw = timestamp;
   const time = (timestamp - startTime) / 1000;
 
   pointer.x += (pointerTarget.x - pointer.x) * 0.035;
   pointer.y += (pointerTarget.y - pointer.y) * 0.035;
+  cursor.style.transform = `translate3d(${cursorTarget.x - 25}px, ${cursorTarget.y - 25}px, 0)`;
+  cursor.style.opacity = cursorTarget.visible ? "0.5" : "0";
 
   ctx.clearRect(0, 0, width, height);
   ctx.globalCompositeOperation = "screen";
@@ -155,13 +172,14 @@ window.addEventListener("resize", resize);
 window.addEventListener("pointermove", (event) => {
   pointerTarget.x = event.clientX / width;
   pointerTarget.y = event.clientY / height;
-  cursor.style.transform = `translate3d(${event.clientX - 25}px, ${event.clientY - 25}px, 0)`;
-  cursor.style.opacity = "0.5";
+  cursorTarget.x = event.clientX;
+  cursorTarget.y = event.clientY;
+  cursorTarget.visible = true;
 });
 window.addEventListener("pointerleave", () => {
   pointerTarget.x = 0.5;
   pointerTarget.y = 0.5;
-  cursor.style.opacity = "0";
+  cursorTarget.visible = false;
 });
 window.addEventListener("beforeunload", () => cancelAnimationFrame(animationFrame));
 

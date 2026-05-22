@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "Boris Black Bloxx";
-  src: url("BorisBlackBloxx.ttf") format("truetype");
+  font-family: "Ari W9500 Display";
+  src: url("ari-w9500-display.ttf") format("truetype");
   font-display: swap;
 }
 
@@ -72,8 +72,7 @@ body::before {
   z-index: 1;
   width: 100%;
   height: 100%;
-  opacity: 0.9;
-  filter: saturate(1.25);
+  opacity: 0.82;
 }
 
 .cursor-square {
@@ -89,6 +88,7 @@ body::before {
   pointer-events: none;
   transform: translate3d(-100px, -100px, 0);
   transition: opacity 140ms ease;
+  will-change: transform, opacity;
 }
 
 .frontpage {
@@ -104,7 +104,7 @@ body::before {
 h1 {
   width: 100%;
   margin: 0;
-  font-family: "Boris Black Bloxx", Impact, fantasy;
+  font-family: "Ari W9500 Display", Impact, fantasy;
   font-size: clamp(4.2rem, 18vw, 18.5rem);
   font-weight: 900;
   line-height: 0.82;
@@ -113,10 +113,10 @@ h1 {
   text-wrap: balance;
   text-align: center;
   white-space: nowrap;
-  color: rgba(33, 41, 52, 0.78);
+  color: rgba(35, 44, 56, 0.46);
   text-shadow:
-    0 0 1px rgba(185, 255, 102, 0.12),
-    0 0 36px rgba(87, 216, 255, 0.16),
+    0 0 1px rgba(185, 255, 102, 0.08),
+    0 0 32px rgba(87, 216, 255, 0.1),
     0 18px 80px rgba(0, 0, 0, 0.72);
   mix-blend-mode: screen;
 }
@@ -145,7 +145,15 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  body {
+    cursor: auto;
+  }
+
   .network {
+    display: none;
+  }
+
+  .cursor-square {
     display: none;
   }
 }
