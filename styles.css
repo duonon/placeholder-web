@@ -14,6 +14,7 @@
   --lime: #b9ff66;
   --hot: #ff4f87;
   --panel: rgba(9, 13, 19, 0.72);
+  --page-pad: clamp(1rem, 2.8vw, 2.5rem);
 }
 
 * {
@@ -98,11 +99,13 @@ body::before {
   align-items: center;
   justify-content: center;
   min-height: 100%;
-  padding: clamp(1rem, 2.8vw, 2.5rem);
+  overflow: hidden;
+  padding: var(--page-pad);
 }
 
 h1 {
-  width: 100%;
+  width: max-content;
+  max-width: calc(100vw - (var(--page-pad) * 2));
   margin: 0;
   font-family: "Ari W9500 Display", Impact, fantasy;
   font-size: clamp(4.2rem, 18vw, 18.5rem);
@@ -113,15 +116,21 @@ h1 {
   text-wrap: balance;
   text-align: center;
   white-space: nowrap;
-  color: rgba(35, 44, 56, 0.46);
+  color: rgba(35, 44, 56, 0.36);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-fill-color: rgba(35, 44, 56, 0.36);
   text-shadow:
-    0 0 1px rgba(185, 255, 102, 0.08),
-    0 0 32px rgba(87, 216, 255, 0.1),
-    0 18px 80px rgba(0, 0, 0, 0.72);
-  mix-blend-mode: screen;
+    0 0 1px rgba(185, 255, 102, 0.04),
+    0 0 24px rgba(87, 216, 255, 0.06),
+    0 18px 80px rgba(0, 0, 0, 0.66);
+  transform: translateX(0.018em);
 }
 
 @media (max-width: 760px) {
+  :root {
+    --page-pad: 0.75rem;
+  }
+
   body {
     cursor: auto;
     min-height: 100svh;
@@ -134,13 +143,19 @@ h1 {
 
   .frontpage {
     min-height: 100svh;
-    padding: 0.75rem;
   }
 
   h1 {
-    font-size: clamp(2rem, 19vw, 7.8rem);
+    font-size: clamp(1.5rem, 16.2vw, 7.8rem);
     line-height: 0.9;
-    max-width: 100%;
+    max-width: calc(100vw - (var(--page-pad) * 2));
+    color: rgba(35, 44, 56, 0.34);
+    -webkit-text-fill-color: rgba(35, 44, 56, 0.34);
+    text-shadow:
+      0 0 1px rgba(185, 255, 102, 0.035),
+      0 0 18px rgba(87, 216, 255, 0.045),
+      0 12px 56px rgba(0, 0, 0, 0.58);
+    transform: translateX(0.018em);
   }
 }
 
