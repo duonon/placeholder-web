@@ -65,31 +65,26 @@ body::after {
   top: 0;
   left: 0;
   z-index: 1;
-  width: var(--wipe-width);
-  height: var(--wipe-height);
+  width: 0;
+  height: 0;
   pointer-events: none;
   background: #000000;
-  transform: scale(0);
-  transform-origin: 0 0;
+  overflow: visible;
   animation: draw-layer var(--intro-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.wipe-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 4;
+.wipe-layer::after {
+  position: absolute;
+  top: 100%;
+  left: 100%;
   width: clamp(3.5rem, 8vw, 6.75rem);
   height: clamp(3.5rem, 8vw, 6.75rem);
   background: #000000;
   clip-path: polygon(0 0, 100% 44%, 44% 100%);
+  content: "";
   opacity: 0;
-  pointer-events: none;
-  transform: translate3d(0, 0, 0);
-  animation:
-    pull-cursor var(--intro-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    show-cursor var(--intro-duration) step-end forwards;
-  will-change: transform, opacity;
+  animation: show-cursor var(--intro-duration) step-end forwards;
+  will-change: opacity;
 }
 
 .frontpage {
@@ -178,8 +173,7 @@ h1 {
     background: #000000;
   }
 
-  .wipe-layer,
-  .wipe-cursor {
+  .wipe-layer {
     display: none;
   }
 
@@ -273,22 +267,13 @@ h1 {
 @keyframes draw-layer {
   0%,
   42.85% {
-    transform: scale(0);
+    width: 0;
+    height: 0;
   }
 
   100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes pull-cursor {
-  0%,
-  42.85% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  100% {
-    transform: translate3d(var(--wipe-width), var(--wipe-height), 0);
+    width: var(--wipe-width);
+    height: var(--wipe-height);
   }
 }
 
